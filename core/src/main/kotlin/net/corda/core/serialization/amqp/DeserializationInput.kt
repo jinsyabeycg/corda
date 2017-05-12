@@ -1,7 +1,9 @@
 package net.corda.core.serialization.amqp
 
 import com.google.common.base.Throwables
+import com.google.common.reflect.TypeToken
 import net.corda.core.serialization.SerializedBytes
+import org.apache.qpid.proton.amqp.Binary
 import org.apache.qpid.proton.amqp.DescribedType
 import org.apache.qpid.proton.codec.Data
 import java.io.NotSerializableException
@@ -66,15 +68,21 @@ class DeserializationInput(internal val serializerFactory: SerializerFactory = S
             if (serializer.type != type && !serializer.type.isSubClassOf(type))
                 throw NotSerializableException("Described type with descriptor ${obj.descriptor} was expected to be of type $type")
             return serializer.readObject(obj.described, schema, this)
+        } else if (obj is Binary) {
+            return obj.array
         } else {
             return obj
         }
     }
 
     private fun Type.isSubClassOf(type: Type): Boolean {
+        /*
         return type == Object::class.java ||
                 (this is Class<*> && type is Class<*> && type.isAssignableFrom(this)) ||
                 (this is DeserializedParameterizedType && type is Class<*> && this.rawType == type && this.isFullyWildcarded)
+                */
+
+        return TypeToken.of(this).isSubtypeOf(type)
     }
 
     private fun subArraysEqual(a: ByteArray, aOffset: Int, length: Int, b: ByteArray, bOffset: Int): Boolean {
