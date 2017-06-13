@@ -28,9 +28,9 @@ import java.util.*
  */
 fun freshCertificate(identityService: IdentityService,
                      subjectPublicKey: PublicKey,
-                     issuer: PartyAndCertificate,
                      issuerSigner: ContentSigner,
-                     revocationEnabled: Boolean = false): Pair<X509CertificateHolder, CertPath> {
+                     revocationEnabled: Boolean = false,
+                     issuer: PartyAndCertificate): Pair<X509CertificateHolder, CertPath> {
     val issuerCertificate = issuer.certificate
     val window = X509Utilities.getCertificateValidityWindow(Duration.ZERO, Duration.ofDays(10 * 365), issuerCertificate)
     val subjectCertificate = Crypto.createCertificate(CertificateType.IDENTITY, issuerCertificate.subject, issuerSigner, issuer.name, subjectPublicKey, window)

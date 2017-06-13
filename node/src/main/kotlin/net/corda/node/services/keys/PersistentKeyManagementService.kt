@@ -69,7 +69,7 @@ class PersistentKeyManagementService(val identityService: IdentityService,
     }
 
     override fun freshKeyAndCert(identity: PartyAndCertificate, revocationEnabled: Boolean): Pair<X509CertificateHolder, CertPath> {
-        return freshCertificate(identityService, freshKey(), identity, getSigner(identity.owningKey), revocationEnabled)
+        return freshCertificate(identityService, freshKey(), getSigner(identity.owningKey), revocationEnabled, identity)
     }
 
     private fun getSigner(publicKey: PublicKey): ContentSigner  = getSigner(getSigningKeyPair(publicKey))

@@ -1,7 +1,6 @@
 package net.corda.node.services.identity
 
 import net.corda.core.contracts.PartyAndReference
-import net.corda.core.contracts.requireThat
 import net.corda.core.crypto.cert
 import net.corda.core.crypto.subject
 import net.corda.core.crypto.toStringShort
@@ -32,11 +31,11 @@ import kotlin.collections.ArrayList
 @ThreadSafe
 class InMemoryIdentityService(identities: Iterable<PartyAndCertificate> = emptySet(),
                               certPaths: Map<AnonymousParty, CertPath> = emptyMap(),
-                              override val trustRoot: X509Certificate?,
+                              override val trustRoot: X509Certificate,
                               vararg caCertificates: X509Certificate) : SingletonSerializeAsToken(), IdentityService {
     constructor(identities: Iterable<PartyAndCertificate> = emptySet(),
                 certPaths: Map<AnonymousParty, CertPath> = emptyMap(),
-                trustRoot: X509CertificateHolder?) : this(identities, certPaths, trustRoot?.cert)
+                trustRoot: X509CertificateHolder) : this(identities, certPaths, trustRoot.cert)
     companion object {
         private val log = loggerFor<InMemoryIdentityService>()
     }
@@ -44,13 +43,16 @@ class InMemoryIdentityService(identities: Iterable<PartyAndCertificate> = emptyS
     /**
      * Certificate store for certificate authority and intermediary certificates.
      */
-    override val trustRootHolder = trustRoot?.let { X509CertificateHolder(it.encoded) }
-    private val trustAnchor: TrustAnchor? = trustRoot?.let { TrustAnchor(it, null) }
+    override val caCertStore: CertStore
+    override val trustRootHolder = X509CertificateHolder(trustRoot.encoded)
+    private val trustAnchor: TrustAnchor = TrustAnchor(trustRoot, null)
     private val keyToParties = ConcurrentHashMap<PublicKey, PartyAndCertificate>()
     private val principalToParties = ConcurrentHashMap<X500Name, PartyAndCertificate>()
     private val partyToPath = ConcurrentHashMap<AbstractParty, CertPath>()
 
     init {
+        val caCertificatesWithRoot: Set<X509Certificate> = caCertificates.toSet() + trustRoot
+        caCertStore = CertStore.getInstance("Collection", CollectionCertStoreParameters(caCertificatesWithRoot))
         keyToParties.putAll(identities.associateBy { it.owningKey } )
         principalToParties.putAll(identities.associateBy { it.name })
         partyToPath.putAll(certPaths)
@@ -63,7 +65,7 @@ class InMemoryIdentityService(identities: Iterable<PartyAndCertificate> = emptyS
         val party = partyAndCertificate.party
         require(certPath.certificates.isNotEmpty()) { "Certificate path must contain at least one certificate" }
         // Validate the chain first, before we do anything clever with it
-        if (trustRoot != null) validateCertificatePath(party, certPath)
+        validateCertificatePath(party, certPath)
 
         log.trace { "Registering identity $partyAndCertificate" }
         require(Arrays.equals(partyAndCertificate.certificate.subjectPublicKeyInfo.encoded, party.owningKey.encoded)) { "Party certificate must end with party's public key" }
@@ -129,7 +131,7 @@ class InMemoryIdentityService(identities: Iterable<PartyAndCertificate> = emptyS
         val partyCertificate = certificateFromParty(party) ?: throw IllegalArgumentException("Unknown identity ${party.name}")
         require(path.certificates.isNotEmpty()) { "Certificate path must contain at least one certificate" }
         // Validate the chain first, before we do anything clever with it
-        if (trustRoot != null) validateCertificatePath(anonymousParty, path)
+        validateCertificatePath(anonymousParty, path)
         val subjectCertificate = path.certificates.first()
         require(subjectCertificate is X509Certificate && subjectCertificate.subject == partyCertificate.name) { "Subject of the transaction certificate must match the well known identity" }
 

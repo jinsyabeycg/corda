@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.google.common.util.concurrent.ListenableFuture
 import net.corda.core.contracts.Amount
 import net.corda.core.crypto.SecureHash
+import net.corda.core.crypto.cert
 import net.corda.core.flows.FlowInitiator
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.FlowStateMachine
@@ -34,7 +35,7 @@ class InteractiveShellTest {
         override fun call() = a
     }
 
-    private val ids = InMemoryIdentityService(listOf(MEGA_CORP_IDENTITY), trustRoot = DUMMY_CA.certificate)
+    private val ids = InMemoryIdentityService(listOf(MEGA_CORP_IDENTITY), trustRoot = DUMMY_CA.certificate.cert)
     private val om = JacksonSupport.createInMemoryMapper(ids, YAMLFactory())
 
     private fun check(input: String, expected: String) {

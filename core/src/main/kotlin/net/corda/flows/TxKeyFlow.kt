@@ -7,6 +7,7 @@ import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.AnonymousParty
 import net.corda.core.identity.Party
+import net.corda.core.node.ServiceHub
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
@@ -18,16 +19,18 @@ import java.security.cert.CertPath
  * This is intended for use as a subflow of another flow.
  */
 object TxKeyFlow {
-    abstract class AbstractIdentityFlow<out T>(val otherSide: Party, val revocationEnabled: Boolean): FlowLogic<T>() {
-        fun validateIdentity(untrustedIdentity: AnonymousIdentity): AnonymousIdentity {
-            val (certPath, theirCert, txIdentity) = untrustedIdentity
-            if (theirCert.subject == otherSide.name) {
-                serviceHub.identityService.registerAnonymousIdentity(txIdentity, otherSide, certPath)
-                return AnonymousIdentity(certPath, theirCert, txIdentity)
-            } else
-                throw IllegalStateException("Expected certificate subject to be ${otherSide.name} but found ${theirCert.subject}")
-        }
+    private fun validateIdentity(serviceHub: ServiceHub,
+                         otherSide: Party,
+                         untrustedIdentity: AnonymousIdentity): AnonymousIdentity {
+        val (certPath, theirCert, txIdentity) = untrustedIdentity
+        if (theirCert.subject == otherSide.name) {
+            serviceHub.identityService.registerAnonymousIdentity(txIdentity, otherSide, certPath)
+            return AnonymousIdentity(certPath, theirCert, txIdentity)
+        } else
+            throw IllegalStateException("Expected certificate subject to be ${otherSide.name} but found ${theirCert.subject}")
     }
+
+    abstract class AbstractIdentityFlow<out T>(val otherSide: Party, val revocationEnabled: Boolean): FlowLogic<T>()
 
     @StartableByRPC
     @InitiatingFlow
@@ -45,7 +48,10 @@ object TxKeyFlow {
             progressTracker.currentStep = AWAITING_KEY
             val myIdentityFragment = serviceHub.keyManagementService.freshKeyAndCert(serviceHub.myInfo.legalIdentityAndCert, revocationEnabled)
             val myIdentity = AnonymousIdentity(myIdentityFragment)
-            val theirIdentity = receive<AnonymousIdentity>(otherSide).unwrap { validateIdentity(it) }
+            validateIdentity(serviceHub, serviceHub.myInfo.legalIdentity, myIdentity)
+            val theirIdentity = receive<AnonymousIdentity>(otherSide).unwrap {
+                validateIdentity(serviceHub, otherSide, it)
+            }
             send(otherSide, myIdentity)
             return mapOf(Pair(otherSide, myIdentity),
                     Pair(serviceHub.myInfo.legalIdentity, theirIdentity))
@@ -71,7 +77,9 @@ object TxKeyFlow {
             val myIdentityFragment = serviceHub.keyManagementService.freshKeyAndCert(serviceHub.myInfo.legalIdentityAndCert, revocationEnabled)
             val myIdentity = AnonymousIdentity(myIdentityFragment)
             send(otherSide, myIdentity)
-            val theirIdentity = receive<AnonymousIdentity>(otherSide).unwrap { validateIdentity(it) }
+            val theirIdentity = receive<AnonymousIdentity>(otherSide).unwrap {
+                validateIdentity(serviceHub, otherSide, it)
+            }
             return mapOf(Pair(otherSide, myIdentity),
                     Pair(serviceHub.myInfo.legalIdentity, theirIdentity))
         }
