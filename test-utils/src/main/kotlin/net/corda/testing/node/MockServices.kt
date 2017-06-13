@@ -106,17 +106,22 @@ class MockKeyManagementService(val identityService: IdentityService,
         return freshCertificate(identityService, freshKey(), identity, getSigner(identity.owningKey), revocationEnabled)
     }
 
-    private fun getSigner(publicKey: PublicKey): ContentSigner = getSigner(getSigningKeyPair(publicKey))
+    private fun getSigner(publicKey: PublicKey): ContentSigner = getSigner(getSigningKeyPair(publicKey)!!)
 
-    private fun getSigningKeyPair(publicKey: PublicKey): KeyPair {
+    private fun getSigningKeyPair(publicKey: PublicKey): KeyPair? {
         val pk = publicKey.keys.first { keyStore.containsKey(it) }
-        return KeyPair(pk, keyStore[pk]!!)
+        return keyStore[pk]?.let { privateKey -> KeyPair(pk, privateKey) }
     }
 
     override fun sign(bytes: ByteArray, publicKey: PublicKey): DigitalSignature.WithKey {
         val keyPair = getSigningKeyPair(publicKey)
-        val signature = keyPair.sign(bytes)
+        val signature = keyPair!!.sign(bytes)
         return signature
+    }
+
+    override fun signOptional(bytes: ByteArray, vararg publicKeys: PublicKey): Iterable<DigitalSignature.WithKey> {
+        return keys.map(this::getSigningKeyPair).filterNotNull()
+                .map { keyPair -> keyPair.sign(bytes) }
     }
 }
 

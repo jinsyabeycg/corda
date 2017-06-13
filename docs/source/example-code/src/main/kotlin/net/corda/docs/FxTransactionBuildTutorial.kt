@@ -233,6 +233,7 @@ class ForeignExchangeRemoteFlow(val source: Party) : FlowLogic<Unit>() {
         val ourResponse = prepareOurInputsAndOutputs(serviceHub, request)
 
         // Send back our proposed states and await the full transaction to verify
+        // TODO: Have a faster way of finding our key, probably per-transaction caching?
         val ourKeys = serviceHub.keyManagementService.keys
         val ourKey = ourResponse.inputs.flatMap { it.state.data.participants }.map { it.owningKey }.single { it in ourKeys }
         val proposedTrade = sendAndReceive<SignedTransaction>(source, ourResponse).unwrap {

@@ -402,7 +402,8 @@ interface KeyManagementService {
     @Suspendable
     fun freshKeyAndCert(identity: PartyAndCertificate, revocationEnabled: Boolean): Pair<X509CertificateHolder, CertPath>
 
-    /** Using the provided signing [PublicKey] internally looks up the matching [PrivateKey] and signs the data.
+    /**
+     * Using the provided signing [PublicKey] internally looks up the matching [PrivateKey] and signs the data.
      * @param bytes The data to sign over using the chosen key.
      * @param publicKey The [PublicKey] partner to an internally held [PrivateKey], either derived from the node's primary identity,
      * or previously generated via the [freshKey] method.
@@ -413,6 +414,20 @@ interface KeyManagementService {
      */
     @Suspendable
     fun sign(bytes: ByteArray, publicKey: PublicKey): DigitalSignature.WithKey
+
+    /**
+     * Sign the data with the private key matching the given public key, if available to us.
+     *
+     * @param bytes The data to sign over using the chosen key.
+     * @param publicKeys The [PublicKey]s to try signing with, either derived from the node's primary identity,
+     * or previously generated via the [freshKey] method.
+     * If the [PublicKey] is actually a [CompositeKey] the first leaf signing key hosted by the node is used.
+     * @return the signatures from the keys we have.
+     * TODO A full [KeyManagementService] implementation needs to record activity to the [AuditService] and to limit signing to
+     * appropriately authorised contexts and initiating users.
+     */
+    @Suspendable
+    fun signOptional(bytes: ByteArray, vararg publicKeys: PublicKey): Iterable<DigitalSignature.WithKey>
 }
 
 // TODO: Move to a more appropriate location
