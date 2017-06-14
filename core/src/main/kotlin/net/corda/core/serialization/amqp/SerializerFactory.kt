@@ -128,8 +128,7 @@ class SerializerFactory(val whitelist: ClassWhitelist = AllWhitelist) {
         if (superClassChain != null) return superClassChain
         for (iface in startingClass?.genericInterfaces ?: emptyArray()) {
             val resolved = TypeResolver().where(startingClass!!.asParameterizedType(), startingType.asParameterizedType()).resolveType(iface)
-            val chain = findPathToDeclared(resolved, declaredType, ArrayList(chain))
-            if (chain != null) return chain
+            findPathToDeclared(resolved, declaredType, ArrayList(chain))
         }
         return null
     }

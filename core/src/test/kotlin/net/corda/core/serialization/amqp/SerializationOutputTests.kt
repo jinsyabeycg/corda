@@ -3,6 +3,7 @@ package net.corda.core.serialization.amqp
 import net.corda.core.contracts.*
 import net.corda.core.crypto.SecureHash
 import net.corda.core.flows.FlowException
+import net.corda.core.identity.AbstractParty
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.serialization.EmptyWhitelist
 import net.corda.core.serialization.KryoAMQPSerializer
@@ -17,7 +18,6 @@ import java.io.IOException
 import java.io.NotSerializableException
 import java.math.BigDecimal
 import java.nio.ByteBuffer
-import java.security.PublicKey
 import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals
@@ -456,7 +456,7 @@ class SerializationOutputTests {
     class FooState : ContractState {
         override val contract: Contract
             get() = FooContract
-        override val participants: List<PublicKey>
+        override val participants: List<AbstractParty>
             get() = emptyList()
     }
 
