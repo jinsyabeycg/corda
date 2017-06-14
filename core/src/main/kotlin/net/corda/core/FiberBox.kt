@@ -1,24 +1,25 @@
-package net.corda.node.utilities
+package net.corda.core
 
 import co.paralleluniverse.fibers.Suspendable
 import co.paralleluniverse.strands.concurrent.ReentrantLock
 import com.google.common.util.concurrent.SettableFuture
-import net.corda.core.RetryableException
 import java.time.Clock
 import java.time.Instant
 import java.util.concurrent.Future
 import java.util.concurrent.locks.Lock
 import kotlin.concurrent.withLock
 
-// TODO: We should consider using a Semaphore or CountDownLatch here to make it a little easier to understand, but it seems as though the current version of Quasar does not support suspending on either of their implementations.
+// TODO: We should consider using a Semaphore or CountDownLatch here to make it a little easier to understand, but it
+// seems as though the current version of Quasar does not support suspending on either of their implementations.
 
 /**
- * Modelled on [net.corda.core.ThreadBox], but with support for waiting that is compatible with Quasar [Fiber]s and [MutableClock]s.
+ * Modelled on [ThreadBox], but with support for waiting that is compatible with Quasar [co.paralleluniverse.fibers.Fiber]s
+ * and [MutableClock]s.
  *
- * It supports 3 main operations, all of which operate in a similar context to the [locked] method
- * of [net.corda.core.ThreadBox].  i.e. in the context of the content.
+ * It supports 3 main operations, all of which operate in a similar context to the [ThreadBox.locked] method
+ * i.e. in the context of the content.
  * * [read] operations which acquire the associated lock but do not notify any waiters (see [readWithDeadline])
- * and is a direct equivalent of [net.corda.core.ThreadBox.locked].
+ * and is a direct equivalent of [ThreadBox.locked].
  * * [write] operations which are the same as [read] operations but additionally notify any waiters that the content may have changed.
  * * [readWithDeadline] operations acquire the lock and are evaluated repeatedly until they no longer throw any subclass
  * of [RetryableException].  Between iterations it will wait until woken by a [write] or the deadline is reached.  It will eventually

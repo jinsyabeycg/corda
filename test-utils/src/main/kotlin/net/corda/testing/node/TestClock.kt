@@ -2,9 +2,8 @@ package net.corda.testing.node
 
 import net.corda.core.serialization.SerializeAsToken
 import net.corda.core.serialization.SerializeAsTokenContext
-import net.corda.core.serialization.SingletonSerializationToken
 import net.corda.core.serialization.SingletonSerializationToken.Companion.singletonSerializationToken
-import net.corda.node.utilities.MutableClock
+import net.corda.core.MutableClock
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant

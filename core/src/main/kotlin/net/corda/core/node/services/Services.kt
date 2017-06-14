@@ -433,6 +433,21 @@ interface FileUploader {
     fun accepts(type: String): Boolean
 }
 
+/**
+ * A service that implements AcceptsFileUpload can have new binary data provided to it via an HTTP upload.
+ *
+ * TODO: In future, also accept uploads over the MQ interface too.
+ */
+interface AcceptsFileUpload : FileUploader {
+    /** A string that prefixes the URLs, e.g. "attachments" or "interest-rates". Should be OK for URLs. */
+    val dataTypePrefix: String
+
+    /** What file extensions are acceptable for the file to be handed to upload() */
+    val acceptableFileExtensions: List<String>
+
+    override fun accepts(type: String) = type == dataTypePrefix
+}
+
 interface AttachmentsStorageService {
     /** Provides access to storage of arbitrary JAR files (which may contain only data, no code). */
     val attachments: AttachmentStorage

@@ -2,6 +2,7 @@ package net.corda.node.services.events
 
 import com.google.common.util.concurrent.SettableFuture
 import net.corda.core.ThreadBox
+import net.corda.core.awaitWithDeadline
 import net.corda.core.contracts.SchedulableState
 import net.corda.core.contracts.ScheduledActivity
 import net.corda.core.contracts.ScheduledStateRef

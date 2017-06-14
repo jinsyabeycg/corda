@@ -1,4 +1,4 @@
-package net.corda.irs.simulation
+package net.corda.netmap.simulation
 
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture

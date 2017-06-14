@@ -1,4 +1,4 @@
-package net.corda.irs.api
+package net.corda.irs
 
 import com.google.common.net.HostAndPort
 import net.corda.irs.utilities.uploadFile

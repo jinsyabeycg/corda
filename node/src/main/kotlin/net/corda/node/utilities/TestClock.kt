@@ -1,8 +1,8 @@
 package net.corda.node.utilities
 
+import net.corda.core.MutableClock
 import net.corda.core.serialization.SerializeAsToken
 import net.corda.core.serialization.SerializeAsTokenContext
-import net.corda.core.serialization.SingletonSerializationToken
 import net.corda.core.serialization.SingletonSerializationToken.Companion.singletonSerializationToken
 import java.time.*
 import javax.annotation.concurrent.ThreadSafe

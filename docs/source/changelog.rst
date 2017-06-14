@@ -12,6 +12,8 @@ UNRELEASED
 
 * The node driver has moved to net.corda.testing.driver in the test-utils module
 
+* FiberBox and ClockUtils have moved to net.corda.core
+
 Milestone 12
 ------------
 
