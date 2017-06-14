@@ -76,25 +76,19 @@ class PersistentKeyManagementService(val identityService: IdentityService,
         return freshCertificate(identityService, freshKey(), identity, getSigner(identity.owningKey), revocationEnabled)
     }
 
-    private fun getSigner(publicKey: PublicKey): ContentSigner  = getSigner(getSigningKeyPair(publicKey)!!)
+    private fun getSigner(publicKey: PublicKey): ContentSigner  = getSigner(getSigningKeyPair(publicKey))
 
-    private fun getSigningKeyPair(publicKey: PublicKey): KeyPair? {
+    private fun getSigningKeyPair(publicKey: PublicKey): KeyPair {
         return mutex.locked {
             val pk = publicKey.keys.first { keys.containsKey(it) }
-            keys[pk]?.let {
-                KeyPair(pk, it)
-            }
+            KeyPair(pk, keys[pk]!!)
         }
     }
 
     override fun sign(bytes: ByteArray, publicKey: PublicKey): DigitalSignature.WithKey {
-        val keyPair = getSigningKeyPair(publicKey) ?: throw IllegalArgumentException()
+        val keyPair = getSigningKeyPair(publicKey)
         val signature = keyPair.sign(bytes)
         return signature
     }
 
-    override fun signOptional(bytes: ByteArray, vararg publicKeys: PublicKey): Iterable<DigitalSignature.WithKey> {
-        return keys.map(this::getSigningKeyPair).filterNotNull()
-                .map { keyPair -> keyPair.sign(bytes) }
-    }
 }
