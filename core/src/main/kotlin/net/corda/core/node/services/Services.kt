@@ -403,6 +403,13 @@ interface KeyManagementService {
     fun freshKeyAndCert(identity: PartyAndCertificate, revocationEnabled: Boolean): Pair<X509CertificateHolder, CertPath>
 
     /**
+     * Filter some keys down to the set that this node owns (has private keys for).
+     *
+     * @param candidateKeys keys which this node may own.
+     */
+    fun filterMyKeys(candidateKeys: Iterable<PublicKey>): Iterable<PublicKey>
+
+    /**
      * Using the provided signing [PublicKey] internally looks up the matching [PrivateKey] and signs the data.
      * @param bytes The data to sign over using the chosen key.
      * @param publicKey The [PublicKey] partner to an internally held [PrivateKey], either derived from the node's primary identity,
