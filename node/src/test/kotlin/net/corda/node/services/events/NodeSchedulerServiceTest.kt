@@ -1,6 +1,7 @@
 package net.corda.node.services.events
 
 import net.corda.core.contracts.*
+import net.corda.core.crypto.cert
 import net.corda.core.days
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.FlowLogicRef
@@ -77,7 +78,7 @@ class NodeSchedulerServiceTest : SingletonSerializeAsToken() {
         val dataSourceAndDatabase = configureDatabase(dataSourceProps)
         dataSource = dataSourceAndDatabase.first
         database = dataSourceAndDatabase.second
-        val identityService = InMemoryIdentityService(trustRoot = DUMMY_CA.certificate)
+        val identityService = InMemoryIdentityService(trustRoot = DUMMY_CA.certificate.cert)
         val kms = MockKeyManagementService(identityService, ALICE_KEY)
 
         database.transaction {

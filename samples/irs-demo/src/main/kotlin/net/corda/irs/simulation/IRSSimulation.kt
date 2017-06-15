@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.SettableFuture
 import net.corda.core.*
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.crypto.cert
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.FlowStateMachine
 import net.corda.core.flows.InitiatedBy
@@ -47,7 +48,7 @@ class IRSSimulation(networkSendManuallyPumped: Boolean, runAsync: Boolean, laten
 
     override fun startMainSimulation(): ListenableFuture<Unit> {
         val future = SettableFuture.create<Unit>()
-        om = JacksonSupport.createInMemoryMapper(InMemoryIdentityService((banks + regulators + networkMap).map { it.info.legalIdentityAndCert }, trustRoot = DUMMY_CA.certificate))
+        om = JacksonSupport.createInMemoryMapper(InMemoryIdentityService((banks + regulators + networkMap).map { it.info.legalIdentityAndCert }, trustRoot = DUMMY_CA.certificate.cert))
 
         startIRSDealBetween(0, 1).success {
             // Next iteration is a pause.
