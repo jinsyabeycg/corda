@@ -128,7 +128,7 @@ class SerializerFactory(val whitelist: ClassWhitelist = AllWhitelist) {
         if (superClassChain != null) return superClassChain
         for (iface in startingClass?.genericInterfaces ?: emptyArray()) {
             val resolved = TypeResolver().where(startingClass!!.asParameterizedType(), startingType.asParameterizedType()).resolveType(iface)
-            findPathToDeclared(resolved, declaredType, ArrayList(chain))
+            return findPathToDeclared(resolved, declaredType, ArrayList(chain)) ?: continue
         }
         return null
     }
@@ -188,20 +188,6 @@ class SerializerFactory(val whitelist: ClassWhitelist = AllWhitelist) {
         }
     }
 
-    /*
-    private fun checkParameterisedTypesConcrete(actualTypeArguments: Array<out Type>) {
-        for (type in actualTypeArguments) {
-            // Needs to be another parameterised type or a class, or any type.
-            if (type !is Class<*>) {
-                if (type is ParameterizedType) {
-                    checkParameterisedTypesConcrete(type.actualTypeArguments)
-                } else if (type != AnyType) {
-                    throw NotSerializableException("Declared parameterised types containing $type as a parameter are not supported.")
-                }
-            }
-        }
-    }*/
-
     private fun makeClassSerializer(clazz: Class<*>, type: Type, declaredType: Type): AMQPSerializer<Any> {
         return serializersByType.computeIfAbsent(type) {
             if (isPrimitive(clazz)) {
@@ -247,6 +233,7 @@ class SerializerFactory(val whitelist: ClassWhitelist = AllWhitelist) {
                     return customSerializer
                 } else {
                     // Make a subclass serializer for the subclass and return that...
+                    @Suppress("UNCHECKED_CAST")
                     return CustomSerializer.SubClass<Any>(clazz, customSerializer as CustomSerializer<Any>)
                 }
             }

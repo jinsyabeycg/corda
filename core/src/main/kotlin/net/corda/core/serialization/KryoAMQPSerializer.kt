@@ -33,6 +33,7 @@ object KryoAMQPSerializer : Serializer<Any>() {
 
     override fun read(kryo: Kryo, input: Input, type: Class<Any>): Any {
         val amqpInput = DeserializationInput(serializerFactory)
+        @Suppress("UNCHECKED_CAST")
         return amqpInput.deserialize(kryo.readObject(input, SerializedBytes::class.java) as SerializedBytes<Any>, type)
     }
 }
