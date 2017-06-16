@@ -183,7 +183,6 @@ class SerializerFactory(val whitelist: ClassWhitelist = AllWhitelist) {
         serializersByDescriptor.computeIfAbsent(typeNotation.descriptor.name!!) {
             // TODO: class loader logic, and compare the schema.
             val type = typeForName(typeNotation.name)
-            //val clazz = Class.forName(typeNotation.name)
             get(type as? Class<*> ?: (type as? ParameterizedType)?.rawType as? Class<*> ?: throw NotSerializableException("Unable to build composite type for $type"), type)
         }
     }
