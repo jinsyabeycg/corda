@@ -59,7 +59,7 @@ class CordaClassResolver(val whitelist: ClassWhitelist, val amqpEnabled: Boolean
             return checkClass(type.superclass)
         }
         // It's safe to have the Class already, since Kryo loads it with initialisation off.
-        // If we use a whitelist with blacklisting capabilities, whitelist.hasListed(type) may throw a NotSerializableException if input class is blacklisted.
+        // If we use a whitelist with blacklisting capabilities, whitelist.hasListed(type) may throw a IllegalStateException if input class is blacklisted.
         // Thus, blacklisting precedes annotation checking.
         val hasAnnotation = checkForAnnotation(type)
         if (!whitelist.hasListed(type) && !hasAnnotation) {

@@ -14,12 +14,6 @@ class ArraySerializer(override val type: Type, factory: SerializerFactory) : AMQ
 
     private val typeNotation: TypeNotation = RestrictedType(type.typeName, null, emptyList(), "list", Descriptor(typeDescriptor, null), emptyList())
 
-    /*
-    private fun makeElementType(): Type {
-        return (type as? Class<*>)?.componentType ?: (type as GenericArrayType).genericComponentType
-    }
-    */
-
     override fun writeClassInfo(output: SerializationOutput) {
         if (output.writeTypeNotations(typeNotation)) {
             output.requireSerializer(elementType)
@@ -45,13 +39,6 @@ class ArraySerializer(override val type: Type, factory: SerializerFactory) : AMQ
 
     private fun <T> List<T>.toArrayOfType(type: Type): Any {
         val elementType = type.asClass() ?: throw NotSerializableException("Unexpected array element type $type")
-        /* Class<*> = if (type is Class<*>) {
-            type
-        } else if (type is ParameterizedType) {
-            type.rawType as Class<*>
-        } else { */
-
-        //}
         val list = this
         return java.lang.reflect.Array.newInstance(elementType, this.size).apply {
             val array = this

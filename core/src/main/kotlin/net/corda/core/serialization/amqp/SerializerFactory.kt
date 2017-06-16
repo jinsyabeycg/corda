@@ -210,20 +210,7 @@ class SerializerFactory(val whitelist: ClassWhitelist = AllWhitelist) {
         }
     }
 
-    private fun makeGenericClassSerializer(type: Type): AMQPSerializer<Any> {
-        // TODO: do we need custom serializer logic here?
-        return if (type is GenericArrayType) {
-            whitelisted(type.genericComponentType)
-            ArraySerializer(type, this)
-        } else {
-            whitelisted(type)
-            ObjectSerializer(type, this)
-        }
-    }
-
     internal fun findCustomSerializer(clazz: Class<*>, declaredType: Type): AMQPSerializer<Any>? {
-        // TODO: bah humbug.... this breaks lots of stuff.
-        // TODO: For now we do not support declaredType being anything other than most general form the serializer supports.
         // e.g. Imagine if we provided a Map serializer this way, then it won't work if the declared type is AbstractMap, only Map.
         // Otherwise it needs to inject additional schema for a RestrictedType source of the super type.  Could be done, but do we need it?
         for (customSerializer in customSerializers) {

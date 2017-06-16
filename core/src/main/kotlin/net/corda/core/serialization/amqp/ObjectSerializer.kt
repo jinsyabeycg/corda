@@ -68,7 +68,7 @@ class ObjectSerializer(val clazz: Type, factory: SerializerFactory) : AMQPSerial
     }
 
     private fun generateProvides(): List<String> {
-        return interfaces.map { SerializerFactory.nameForType(it) }
+        return interfaces.map { nameForType(it) }
     }
 
 

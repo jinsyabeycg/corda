@@ -346,7 +346,7 @@ class SerializationOutputTests {
         val factory2 = SerializerFactory()
         factory2.register(net.corda.core.serialization.amqp.custom.ThrowableSerializer(factory2))
 
-        val t = IllegalAccessException("message").fillInStackTrace() as Throwable
+        val t = IllegalAccessException("message").fillInStackTrace()
         val desThrowable = serdes(t, factory, factory2, false) as Throwable
         assertSerializedThrowableEquivalent(t, desThrowable)
     }

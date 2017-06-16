@@ -11,7 +11,7 @@ import java.lang.reflect.Type
 abstract class CustomSerializer<T> : AMQPSerializer<T> {
     /**
      * This is a collection of custom serializers that this custom serializer depends on.  e.g. for proxy objects
-     * that to other types etc.
+     * that refer to other custom types etc.
      */
     abstract val additionalSerializers: Iterable<CustomSerializer<out Any>>
 
@@ -32,10 +32,10 @@ abstract class CustomSerializer<T> : AMQPSerializer<T> {
 
     abstract fun writeDescribedObject(obj: T, data: Data, type: Type, output: SerializationOutput)
 
-    // TODO: should this be a custom serializer at all, or should it just be an AMQPSerializer
+    // TODO: should this be a custom serializer at all, or should it just be a plain AMQPSerializer?
     class SubClass<T>(protected val clazz: Class<*>, protected val superClassSerializer: CustomSerializer<T>) : CustomSerializer<T>() {
         override val additionalSerializers: Iterable<CustomSerializer<out Any>> = emptyList()
-        // TODO: should this be empty or contain the schema of the super
+        // TODO: should this be empty or contain the schema of the super?
         override val schemaForDocumentation = Schema(emptyList())
 
         override fun isSerializerFor(clazz: Class<*>): Boolean = clazz == this.clazz

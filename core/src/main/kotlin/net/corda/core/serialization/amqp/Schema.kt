@@ -323,8 +323,6 @@ private val TYPE_VARIABLE_HASH: String = "Any type = true"
  */
 // TODO: write tests
 internal fun fingerprintForType(type: Type, factory: SerializerFactory): String {
-    // TODO: do we need this?
-    //checkTypeIsResolved(type)
     return Base58.encode(fingerprintForType(type, null, HashSet(), Hashing.murmur3_128().newHasher(), factory).hash().asBytes())
 }
 
@@ -336,9 +334,7 @@ internal fun fingerprintForStrings(vararg typeDescriptors: String): String {
     return Base58.encode(hasher.hash().asBytes())
 }
 
-private fun fingerprintForType(actualType: Type, contextType: Type?, alreadySeen: MutableSet<Type>, hasher: Hasher, factory: SerializerFactory): Hasher {
-    //checkTypeIsResolved(actualType) Not needed....
-    val type = actualType //resolveTypeVariables(actualType, contextType)
+private fun fingerprintForType(type: Type, contextType: Type?, alreadySeen: MutableSet<Type>, hasher: Hasher, factory: SerializerFactory): Hasher {
     return if (type in alreadySeen) {
         hasher.putUnencodedChars(ALREADY_SEEN_HASH)
     } else {

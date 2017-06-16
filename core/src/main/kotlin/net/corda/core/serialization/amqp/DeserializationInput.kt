@@ -1,7 +1,6 @@
 package net.corda.core.serialization.amqp
 
 import com.google.common.base.Throwables
-import com.google.common.reflect.TypeToken
 import net.corda.core.serialization.SerializedBytes
 import org.apache.qpid.proton.amqp.Binary
 import org.apache.qpid.proton.amqp.DescribedType
@@ -73,16 +72,6 @@ class DeserializationInput(internal val serializerFactory: SerializerFactory = S
         } else {
             return obj
         }
-    }
-
-    private fun Type.isSubClassOf(type: Type): Boolean {
-        /*
-        return type == Object::class.java ||
-                (this is Class<*> && type is Class<*> && type.isAssignableFrom(this)) ||
-                (this is DeserializedParameterizedType && type is Class<*> && this.rawType == type && this.isFullyWildcarded)
-                */
-
-        return TypeToken.of(this).isSubtypeOf(type)
     }
 
     private fun subArraysEqual(a: ByteArray, aOffset: Int, length: Int, b: ByteArray, bOffset: Int): Boolean {

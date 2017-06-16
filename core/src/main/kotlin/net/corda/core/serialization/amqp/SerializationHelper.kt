@@ -218,3 +218,7 @@ fun Type.asParameterizedType(): ParameterizedType {
         else -> throw NotSerializableException("Don't know how to convert to ParameterizedType")
     }
 }
+
+fun Type.isSubClassOf(type: Type): Boolean {
+    return TypeToken.of(this).isSubtypeOf(type)
+}
